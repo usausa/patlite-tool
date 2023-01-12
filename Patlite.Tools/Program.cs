@@ -20,15 +20,15 @@ writeCommand.Handler = CommandHandler.Create(async (IConsole console, string hos
     var status = new PatliteStatus();
     if (blink)
     {
-        status.GreenBlink = color.Contains("g", StringComparison.OrdinalIgnoreCase);
-        status.YellowBlink = color.Contains("y", StringComparison.OrdinalIgnoreCase);
-        status.RedBlink = color.Contains("r", StringComparison.OrdinalIgnoreCase);
+        status.GreenBlink = color.Contains('g', StringComparison.OrdinalIgnoreCase);
+        status.YellowBlink = color.Contains('y', StringComparison.OrdinalIgnoreCase);
+        status.RedBlink = color.Contains('r', StringComparison.OrdinalIgnoreCase);
     }
     else
     {
-        status.Green = color.Contains("g", StringComparison.OrdinalIgnoreCase);
-        status.Yellow = color.Contains("y", StringComparison.OrdinalIgnoreCase);
-        status.Red = color.Contains("r", StringComparison.OrdinalIgnoreCase);
+        status.Green = color.Contains('g', StringComparison.OrdinalIgnoreCase);
+        status.Yellow = color.Contains('y', StringComparison.OrdinalIgnoreCase);
+        status.Red = color.Contains('r', StringComparison.OrdinalIgnoreCase);
     }
 
     using var client = new TcpPatliteClient();
