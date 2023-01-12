@@ -10,6 +10,21 @@ rootCommand.AddGlobalOption(new Option<string>(new[] { "--host", "-h" }, "Host")
 rootCommand.AddGlobalOption(new Option<int>(new[] { "--port", "-p" }, static () => 10000, "Port"));
 // TODO Type
 
+// Clear
+#pragma warning disable IDE0017
+// ReSharper disable once UseObjectOrCollectionInitializer
+var clearCommand = new Command("clear", "Clear");
+clearCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port) =>
+{
+    using var client = new TcpPatliteClient();
+    await client.ConnectAsync(IPAddress.Parse(host), port);
+
+    var result = await client.WriteAsync(new PatliteStatus());
+    console.WriteLine(result ? "OK" : "NG");
+});
+rootCommand.Add(clearCommand);
+#pragma warning restore IDE0017
+
 // Write
 var writeCommand = new Command("write", "Write");
 rootCommand.AddGlobalOption(new Option<string>(new[] { "--color", "-c" }, static () => string.Empty, "Color"));
