@@ -30,7 +30,8 @@ var writeCommand = new Command("write", "Write");
 rootCommand.AddGlobalOption(new Option<string>(new[] { "--color", "-c" }, static () => string.Empty, "Color"));
 rootCommand.AddGlobalOption(new Option<bool>(new[] { "--blink", "-b" }, static () => false, "Blink"));
 // TODO Buzzer
-writeCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port, string color, bool blink) =>
+rootCommand.AddGlobalOption(new Option<int>(new[] { "--wait", "-w" }, static () => 0, "Wait"));
+writeCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port, string color, bool blink, int wait) =>
 {
     var status = new PatliteStatus();
     if (blink)
@@ -51,6 +52,12 @@ writeCommand.Handler = CommandHandler.Create(async (IConsole console, string hos
 
     var result = await client.WriteAsync(status);
     console.WriteLine(result ? "OK" : "NG");
+
+    if (wait > 0)
+    {
+        await Task.Delay(wait);
+        await client.WriteAsync(new PatliteStatus());
+    }
 });
 rootCommand.Add(writeCommand);
 
