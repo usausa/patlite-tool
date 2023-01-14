@@ -3,6 +3,9 @@ using System.CommandLine.NamingConventionBinder;
 
 using Patlite.Client;
 
+// ReSharper disable UseObjectOrCollectionInitializer
+#pragma warning disable IDE0017
+
 #pragma warning disable CA1852
 
 var rootCommand = new RootCommand("PATLITE client");
@@ -11,8 +14,6 @@ rootCommand.AddGlobalOption(new Option<int>(new[] { "--port", "-p" }, static () 
 // TODO Protocol type
 
 // Clear
-#pragma warning disable IDE0017
-// ReSharper disable once UseObjectOrCollectionInitializer
 var clearCommand = new Command("clear", "Clear");
 clearCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port) =>
 {
@@ -23,7 +24,6 @@ clearCommand.Handler = CommandHandler.Create(async (IConsole console, string hos
     console.WriteLine(result ? "OK" : "NG");
 });
 rootCommand.Add(clearCommand);
-#pragma warning restore IDE0017
 
 // Write
 var writeCommand = new Command("write", "Write");
@@ -62,6 +62,46 @@ writeCommand.Handler = CommandHandler.Create(async (IConsole console, string hos
 });
 rootCommand.Add(writeCommand);
 
-// TODO Read
+// Read
+var readCommand = new Command("read", "Read");
+readCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port) =>
+{
+    using var client = new TcpPatliteClient();
+    await client.ConnectAsync(IPAddress.Parse(host), port);
+
+    var status = new PatliteStatus();
+    var result = await client.ReadAsync(status);
+
+    console.WriteLine(result ? "OK" : "NG");
+    if (result)
+    {
+        if (status.GreenBlink)
+        {
+            console.WriteLine("Green: Blink");
+        }
+        if (status.Green)
+        {
+            console.WriteLine("Green: On");
+        }
+        if (status.YellowBlink)
+        {
+            console.WriteLine("Yellow: Blink");
+        }
+        if (status.Yellow)
+        {
+            console.WriteLine("Yellow: On");
+        }
+        if (status.RedBlink)
+        {
+            console.WriteLine("Red: Blink");
+        }
+        if (status.Red)
+        {
+            console.WriteLine("Red: On");
+        }
+        console.WriteLine($"Buzzer: {status.Buzzer}");
+    }
+});
+rootCommand.Add(readCommand);
 
 return await rootCommand.InvokeAsync(args).ConfigureAwait(false);
