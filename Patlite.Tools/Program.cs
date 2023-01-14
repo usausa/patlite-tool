@@ -8,7 +8,7 @@ using Patlite.Client;
 var rootCommand = new RootCommand("PATLITE client");
 rootCommand.AddGlobalOption(new Option<string>(new[] { "--host", "-h" }, "Host") { IsRequired = true });
 rootCommand.AddGlobalOption(new Option<int>(new[] { "--port", "-p" }, static () => 10000, "Port"));
-// TODO Type
+// TODO Protocol type
 
 // Clear
 #pragma warning disable IDE0017
@@ -29,9 +29,9 @@ rootCommand.Add(clearCommand);
 var writeCommand = new Command("write", "Write");
 rootCommand.AddGlobalOption(new Option<string>(new[] { "--color", "-c" }, static () => string.Empty, "Color"));
 rootCommand.AddGlobalOption(new Option<bool>(new[] { "--blink", "-b" }, static () => false, "Blink"));
-// TODO Buzzer
+rootCommand.AddGlobalOption(new Option<int>(new[] { "--buzzer", "-z" }, static () => 0, "Buzzer"));
 rootCommand.AddGlobalOption(new Option<int>(new[] { "--wait", "-w" }, static () => 0, "Wait"));
-writeCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port, string color, bool blink, int wait) =>
+writeCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port, string color, bool blink, int buzzer, int wait) =>
 {
     var status = new PatliteStatus();
     if (blink)
@@ -46,6 +46,7 @@ writeCommand.Handler = CommandHandler.Create(async (IConsole console, string hos
         status.Yellow = color.Contains('y', StringComparison.OrdinalIgnoreCase);
         status.Red = color.Contains('r', StringComparison.OrdinalIgnoreCase);
     }
+    status.Buzzer = buzzer;
 
     using var client = new TcpPatliteClient();
     await client.ConnectAsync(IPAddress.Parse(host), port);
