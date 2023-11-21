@@ -11,7 +11,6 @@ using Patlite.Client;
 var rootCommand = new RootCommand("PATLITE client");
 rootCommand.AddGlobalOption(new Option<string>(new[] { "--host", "-h" }, "Host") { IsRequired = true });
 rootCommand.AddGlobalOption(new Option<int>(new[] { "--port", "-p" }, static () => 10000, "Port"));
-// TODO Protocol type
 
 // Clear
 var clearCommand = new Command("clear", "Clear");
