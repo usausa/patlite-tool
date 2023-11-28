@@ -12,7 +12,6 @@
     <PackageId>PatliteTool</PackageId>
     <Title>PATLITE tool</Title>
     <Description>PATLITE tool</Description>
-    <Summary>PATLITE tool</Summary>
     <PackageTags>patlite tools</PackageTags>
   </PropertyGroup>
 

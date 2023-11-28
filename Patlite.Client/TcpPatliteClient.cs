@@ -1,5 +1,6 @@
 namespace Patlite.Client;
 
+#pragma warning disable IDE0230
 public sealed class TcpPatliteClient : IDisposable
 {
     private Socket? socket;
@@ -64,3 +65,4 @@ public sealed class TcpPatliteClient : IDisposable
         }
     }
 }
+#pragma warning restore IDE0230
