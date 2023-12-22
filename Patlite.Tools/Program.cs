@@ -9,8 +9,8 @@ using Patlite.Client;
 #pragma warning disable CA1852
 
 var rootCommand = new RootCommand("PATLITE client");
-rootCommand.AddGlobalOption(new Option<string>(new[] { "--host", "-h" }, "Host") { IsRequired = true });
-rootCommand.AddGlobalOption(new Option<int>(new[] { "--port", "-p" }, static () => 10000, "Port"));
+rootCommand.AddGlobalOption(new Option<string>(["--host", "-h"], "Host") { IsRequired = true });
+rootCommand.AddGlobalOption(new Option<int>(["--port", "-p"], static () => 10000, "Port"));
 
 // Clear
 var clearCommand = new Command("clear", "Clear");
@@ -26,10 +26,10 @@ rootCommand.Add(clearCommand);
 
 // Write
 var writeCommand = new Command("write", "Write");
-rootCommand.AddGlobalOption(new Option<string>(new[] { "--color", "-c" }, static () => string.Empty, "Color"));
-rootCommand.AddGlobalOption(new Option<bool>(new[] { "--blink", "-b" }, static () => false, "Blink"));
-rootCommand.AddGlobalOption(new Option<int>(new[] { "--buzzer", "-z" }, static () => 0, "Buzzer"));
-rootCommand.AddGlobalOption(new Option<int>(new[] { "--wait", "-w" }, static () => 0, "Wait"));
+rootCommand.AddGlobalOption(new Option<string>(["--color", "-c"], static () => string.Empty, "Color"));
+rootCommand.AddGlobalOption(new Option<bool>(["--blink", "-b"], static () => false, "Blink"));
+rootCommand.AddGlobalOption(new Option<int>(["--buzzer", "-z"], static () => 0, "Buzzer"));
+rootCommand.AddGlobalOption(new Option<int>(["--wait", "-w"], static () => 0, "Wait"));
 writeCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port, string color, bool blink, int buzzer, int wait) =>
 {
     var status = new PatliteStatus();
