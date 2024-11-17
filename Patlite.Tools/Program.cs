@@ -14,7 +14,7 @@ rootCommand.AddGlobalOption(new Option<int>(["--port", "-p"], static () => 10000
 
 // Clear
 var clearCommand = new Command("clear", "Clear");
-clearCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port) =>
+clearCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, int port) =>
 {
     using var client = new TcpPatliteClient();
     await client.ConnectAsync(IPAddress.Parse(host), port);
@@ -30,7 +30,7 @@ rootCommand.AddGlobalOption(new Option<string>(["--color", "-c"], static () => s
 rootCommand.AddGlobalOption(new Option<bool>(["--blink", "-b"], static () => false, "Blink"));
 rootCommand.AddGlobalOption(new Option<int>(["--buzzer", "-z"], static () => 0, "Buzzer"));
 rootCommand.AddGlobalOption(new Option<int>(["--wait", "-w"], static () => 0, "Wait"));
-writeCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port, string color, bool blink, int buzzer, int wait) =>
+writeCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, int port, string color, bool blink, int buzzer, int wait) =>
 {
     var status = new PatliteStatus();
     if (blink)
@@ -63,7 +63,7 @@ rootCommand.Add(writeCommand);
 
 // Read
 var readCommand = new Command("read", "Read");
-readCommand.Handler = CommandHandler.Create(async (IConsole console, string host, int port) =>
+readCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, int port) =>
 {
     using var client = new TcpPatliteClient();
     await client.ConnectAsync(IPAddress.Parse(host), port);
