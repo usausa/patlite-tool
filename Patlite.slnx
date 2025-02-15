@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Analyzers.ruleset" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="LICENSE" />
+    <File Path="Patlite.sln.DotSettings" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Patlite.Client/Patlite.Client.csproj" />
+  <Project Path="Patlite.Tools/Patlite.Tools.csproj" />
+</Solution>
