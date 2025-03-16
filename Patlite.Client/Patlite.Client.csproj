@@ -5,4 +5,11 @@
     <CodeAnalysisRuleSet>..\Analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>Patlite.Client</PackageId>
+    <Title>PATLITE client</Title>
+    <Description>PATLITE client.</Description>
+    <PackageTags>patlite hardware</PackageTags>
+  </PropertyGroup>
+
 </Project>
