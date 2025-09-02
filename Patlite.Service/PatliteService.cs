@@ -62,7 +62,7 @@ internal sealed class PatliteService : IDisposable
             await client.ConnectAsync(IPAddress.Parse(setting.Host), setting.Port);
 
             var result = await client.WriteAsync(status);
-            if (!result)
+            if (result)
             {
                 log.InfoWriteSuccess(color, blink, wait);
             }
