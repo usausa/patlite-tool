@@ -1,8 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 
-using Patlite.Client;
-
 // ReSharper disable UseObjectOrCollectionInitializer
 #pragma warning disable IDE0017
 

@@ -4,8 +4,6 @@ using System.Collections.Concurrent;
 
 using Microsoft.Extensions.Options;
 
-using Patlite.Client;
-
 internal sealed class PatliteService : IDisposable
 {
     private readonly ILogger<PatliteService> log;
