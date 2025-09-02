@@ -11,5 +11,6 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="Patlite.Client/Patlite.Client.csproj" />
+  <Project Path="Patlite.Service/Patlite.Service.csproj" />
   <Project Path="Patlite.Tools/Patlite.Tools.csproj" />
 </Solution>
