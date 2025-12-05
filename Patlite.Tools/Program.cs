@@ -24,10 +24,10 @@ rootCommand.Add(clearCommand);
 
 // Write
 var writeCommand = new Command("write", "Write");
-rootCommand.AddGlobalOption(new Option<string>(["--color", "-c"], static () => string.Empty, "Color"));
-rootCommand.AddGlobalOption(new Option<bool>(["--blink", "-b"], static () => false, "Blink"));
-rootCommand.AddGlobalOption(new Option<int>(["--buzzer", "-z"], static () => 0, "Buzzer"));
-rootCommand.AddGlobalOption(new Option<int>(["--wait", "-w"], static () => 0, "Wait"));
+writeCommand.AddOption(new Option<string>(["--color", "-c"], static () => string.Empty, "Color"));
+writeCommand.AddOption(new Option<bool>(["--blink", "-b"], static () => false, "Blink"));
+writeCommand.AddOption(new Option<int>(["--buzzer", "-z"], static () => 0, "Buzzer"));
+writeCommand.AddOption(new Option<int>(["--wait", "-w"], static () => 0, "Wait"));
 writeCommand.Handler = CommandHandler.Create(static async (IConsole console, string host, int port, string color, bool blink, int buzzer, int wait) =>
 {
     var status = new PatliteStatus();

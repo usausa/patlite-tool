@@ -34,6 +34,7 @@ internal sealed class PatliteService : IDisposable
             shutdownCts.Cancel();
             shutdownCts.Dispose();
             signal.Dispose();
+            currentCts?.Cancel();
             currentCts?.Dispose();
 
             isDisposed = true;

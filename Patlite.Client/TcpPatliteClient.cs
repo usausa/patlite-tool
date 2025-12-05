@@ -8,6 +8,8 @@ public sealed class TcpPatliteClient : IDisposable
     public async ValueTask ConnectAsync(IPAddress address, int port)
     {
         socket?.Close();
+        socket?.Dispose();
+
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         await socket.ConnectAsync(address, port);
     }
