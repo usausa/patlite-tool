@@ -21,7 +21,7 @@ public static class CommandBuilderExtensions
 
 public abstract class CommandBase
 {
-    [Option<string>("--host", "-h", Description = "Host", IsRequired = true)]
+    [Option<string>("--host", "-h", Description = "Host", Required = true)]
     public string Host { get; set; } = default!;
 
     [Option<int>("--port", "-p", Description = "Port", DefaultValue = 10000)]
@@ -29,7 +29,7 @@ public abstract class CommandBase
 }
 
 // Clear
-[Command("clear", Description = "Clear")]
+[Command("clear", "Clear")]
 public sealed class ClearCommand : CommandBase, ICommandHandler
 {
     public async ValueTask ExecuteAsync(CommandContext context)
@@ -43,7 +43,7 @@ public sealed class ClearCommand : CommandBase, ICommandHandler
 }
 
 // Write
-[Command("write", Description = "Write")]
+[Command("write", "Write")]
 public sealed class WriteCommand : CommandBase, ICommandHandler
 {
     [Option<string>("--color", "-c", Description = "Color", DefaultValue = "")]
@@ -90,7 +90,7 @@ public sealed class WriteCommand : CommandBase, ICommandHandler
 }
 
 // Read
-[Command("read", Description = "Read")]
+[Command("read", "Read")]
 public sealed class ReadCommand : CommandBase, ICommandHandler
 {
     public async ValueTask ExecuteAsync(CommandContext context)
