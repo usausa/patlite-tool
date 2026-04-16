@@ -43,10 +43,10 @@ internal sealed class PatliteService : IDisposable
 
     private IPatliteClient CreateClient()
     {
-        var client = setting.Udp ? (IPatliteClient)new UdpPatliteClient() : new TcpPatliteClient();
-        if (setting.ReceiveTimeout > 0)
+        var client = (IPatliteClient)(setting.Udp ? new UdpPatliteClient() : new TcpPatliteClient());
+        if (setting.Timeout > 0)
         {
-            client.Timeout = TimeSpan.FromMilliseconds(setting.ReceiveTimeout);
+            client.Timeout = TimeSpan.FromMilliseconds(setting.Timeout);
         }
         return client;
     }

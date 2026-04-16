@@ -35,7 +35,7 @@ public abstract class CommandBase
 
     protected IPatliteClient CreateClient()
     {
-        var client = Udp ? (IPatliteClient)new UdpPatliteClient() : new TcpPatliteClient();
+        var client = (IPatliteClient)(Udp ? new UdpPatliteClient() : new TcpPatliteClient());
         if (Timeout > 0)
         {
             client.Timeout = TimeSpan.FromMilliseconds(Timeout);
