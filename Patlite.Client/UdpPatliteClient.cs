@@ -1,19 +1,20 @@
 namespace Patlite.Client;
 
 #pragma warning disable IDE0230
-public sealed class TcpPatliteClient : IPatliteClient
+public sealed class UdpPatliteClient : IPatliteClient
 {
     private Socket? socket;
 
     public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(3);
 
-    public async ValueTask ConnectAsync(IPAddress address, int port)
+    public ValueTask ConnectAsync(IPAddress address, int port)
     {
         socket?.Close();
         socket?.Dispose();
 
-        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        await socket.ConnectAsync(address, port);
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        socket.Connect(new IPEndPoint(address, port));
+        return ValueTask.CompletedTask;
     }
 
     public void Dispose()

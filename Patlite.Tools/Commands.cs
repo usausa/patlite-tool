@@ -26,6 +26,22 @@ public abstract class CommandBase
 
     [Option<int>("--port", "-p", Description = "Port", DefaultValue = 10000)]
     public int Port { get; set; }
+
+    [Option<bool>("--udp", "-u", Description = "Use UDP")]
+    public bool Udp { get; set; }
+
+    [Option<int>("--timeout", "-t", Description = "Timeout")]
+    public int Timeout { get; set; }
+
+    protected IPatliteClient CreateClient()
+    {
+        var client = Udp ? (IPatliteClient)new UdpPatliteClient() : new TcpPatliteClient();
+        if (Timeout > 0)
+        {
+            client.Timeout = TimeSpan.FromMilliseconds(Timeout);
+        }
+        return client;
+    }
 }
 
 // Clear
@@ -34,7 +50,7 @@ public sealed class ClearCommand : CommandBase, ICommandHandler
 {
     public async ValueTask ExecuteAsync(CommandContext context)
     {
-        using var client = new TcpPatliteClient();
+        using var client = CreateClient();
         await client.ConnectAsync(IPAddress.Parse(Host), Port);
 
         var result = await client.WriteAsync(new PatliteStatus());
@@ -75,7 +91,7 @@ public sealed class WriteCommand : CommandBase, ICommandHandler
         }
         status.Buzzer = Buzzer;
 
-        using var client = new TcpPatliteClient();
+        using var client = CreateClient();
         await client.ConnectAsync(IPAddress.Parse(Host), Port);
 
         var result = await client.WriteAsync(status);
@@ -95,7 +111,7 @@ public sealed class ReadCommand : CommandBase, ICommandHandler
 {
     public async ValueTask ExecuteAsync(CommandContext context)
     {
-        using var client = new TcpPatliteClient();
+        using var client = CreateClient();
         await client.ConnectAsync(IPAddress.Parse(Host), Port);
 
         var status = new PatliteStatus();
