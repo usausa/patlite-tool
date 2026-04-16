@@ -41,6 +41,16 @@ internal sealed class PatliteService : IDisposable
         }
     }
 
+    private IPatliteClient CreateClient()
+    {
+        var client = setting.Udp ? (IPatliteClient)new UdpPatliteClient() : new TcpPatliteClient();
+        if (setting.ReceiveTimeout > 0)
+        {
+            client.Timeout = TimeSpan.FromMilliseconds(setting.ReceiveTimeout);
+        }
+        return client;
+    }
+
     public void Write(string color, bool blink, int wait)
     {
         workItems.Enqueue(async cancel =>
@@ -59,7 +69,7 @@ internal sealed class PatliteService : IDisposable
                 status.Red = color.Contains('r', StringComparison.OrdinalIgnoreCase);
             }
 
-            using var client = new TcpPatliteClient();
+            using var client = CreateClient();
             await client.ConnectAsync(IPAddress.Parse(setting.Host), setting.Port);
 
             var result = await client.WriteAsync(status);
