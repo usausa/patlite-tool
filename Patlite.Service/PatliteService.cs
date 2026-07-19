@@ -16,6 +16,8 @@ internal sealed class PatliteService : IDisposable
 
     private readonly Lock sync = new();
 
+    private readonly Task processTask;
+
     private CancellationTokenSource? currentCts;
     private bool isDisposed;
 
@@ -24,20 +26,36 @@ internal sealed class PatliteService : IDisposable
         this.log = log;
         setting = options.Value;
 
-        _ = Task.Run(ProcessWorkItemsAsync);
+        processTask = Task.Run(ProcessWorkItemsAsync);
     }
 
     public void Dispose()
     {
         if (!isDisposed)
         {
+            isDisposed = true;
+
             shutdownCts.Cancel();
+            lock (sync)
+            {
+                currentCts?.Cancel();
+            }
+
+            try
+            {
+                processTask.Wait(TimeSpan.FromSeconds(5));
+            }
+            catch (AggregateException)
+            {
+            }
+
+            lock (sync)
+            {
+                currentCts?.Dispose();
+            }
+
             shutdownCts.Dispose();
             signal.Dispose();
-            currentCts?.Cancel();
-            currentCts?.Dispose();
-
-            isDisposed = true;
         }
     }
 
@@ -50,6 +68,12 @@ internal sealed class PatliteService : IDisposable
         }
         return client;
     }
+
+    private static IPAddress ResolveHost(string host) =>
+        IPAddress.TryParse(host, out var address)
+            ? address
+            : Array.Find(Dns.GetHostAddresses(host), static x => x.AddressFamily == AddressFamily.InterNetwork)
+                ?? throw new InvalidOperationException($"Host has no IPv4 address. host=[{host}]");
 
     public void Write(string color, bool blink, int wait)
     {
@@ -70,7 +94,7 @@ internal sealed class PatliteService : IDisposable
             }
 
             using var client = CreateClient();
-            await client.ConnectAsync(IPAddress.Parse(setting.Host), setting.Port);
+            await client.ConnectAsync(ResolveHost(setting.Host), setting.Port);
 
             var result = await client.WriteAsync(status);
             if (result)
@@ -84,8 +108,14 @@ internal sealed class PatliteService : IDisposable
 
             if (wait > 0)
             {
-                await Task.Delay(wait, cancel);
-                await client.WriteAsync(new PatliteStatus());
+                try
+                {
+                    await Task.Delay(wait, cancel);
+                }
+                finally
+                {
+                    await client.WriteAsync(new PatliteStatus());
+                }
             }
         });
         signal.Release();
@@ -111,9 +141,9 @@ internal sealed class PatliteService : IDisposable
                 if (workItems.TryDequeue(out var workItem))
                 {
 #pragma warning disable CA1031
+                    var cts = CancellationTokenSource.CreateLinkedTokenSource(shutdownCts.Token);
                     try
                     {
-                        using var cts = CancellationTokenSource.CreateLinkedTokenSource(shutdownCts.Token);
                         lock (sync)
                         {
                             currentCts = cts;
@@ -134,6 +164,8 @@ internal sealed class PatliteService : IDisposable
                         {
                             currentCts = null;
                         }
+
+                        cts.Dispose();
                     }
 #pragma warning restore CA1031
                 }

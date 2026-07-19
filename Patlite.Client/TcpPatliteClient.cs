@@ -9,16 +9,18 @@ public sealed class TcpPatliteClient : IPatliteClient
 
     public async ValueTask ConnectAsync(IPAddress address, int port)
     {
-        socket?.Close();
         socket?.Dispose();
+        socket = null;
 
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        await socket.ConnectAsync(address, port);
+        using var cts = new CancellationTokenSource(Timeout);
+        await socket.ConnectAsync(address, port, cts.Token);
     }
 
     public void Dispose()
     {
-        socket?.Close();
+        socket?.Dispose();
+        socket = null;
     }
 
     public async ValueTask<bool> WriteAsync(PatliteStatus status)
@@ -31,11 +33,22 @@ public sealed class TcpPatliteClient : IPatliteClient
         var buffer = ArrayPool<byte>.Shared.Rent(256);
         try
         {
-            await socket.SendAsync(new[] { (byte)'W', PatliteStatusHelper.ToByte(status) }, SocketFlags.None);
-
             using var cts = new CancellationTokenSource(Timeout);
-            var receive = await socket.ReceiveAsync(buffer, SocketFlags.None, cts.Token);
-            return receive >= 3 && buffer.AsSpan(0, 3).SequenceEqual("ACK"u8);
+            await socket.SendAsync(new[] { (byte)'W', PatliteStatusHelper.ToByte(status) }, SocketFlags.None, cts.Token);
+
+            var received = 0;
+            while (received < 3)
+            {
+                var receive = await socket.ReceiveAsync(buffer.AsMemory(received, buffer.Length - received), SocketFlags.None, cts.Token);
+                if (receive == 0)
+                {
+                    return false;
+                }
+
+                received += receive;
+            }
+
+            return buffer.AsSpan(0, 3).SequenceEqual("ACK"u8);
         }
         finally
         {
@@ -53,11 +66,22 @@ public sealed class TcpPatliteClient : IPatliteClient
         var buffer = ArrayPool<byte>.Shared.Rent(256);
         try
         {
-            await socket.SendAsync(new[] { (byte)'R' }, SocketFlags.None);
-
             using var cts = new CancellationTokenSource(Timeout);
-            var receive = await socket.ReceiveAsync(buffer, SocketFlags.None, cts.Token);
-            var success = receive >= 2 && buffer[0] == (byte)'R';
+            await socket.SendAsync(new[] { (byte)'R' }, SocketFlags.None, cts.Token);
+
+            var received = 0;
+            while (received < 2)
+            {
+                var receive = await socket.ReceiveAsync(buffer.AsMemory(received, buffer.Length - received), SocketFlags.None, cts.Token);
+                if (receive == 0)
+                {
+                    return false;
+                }
+
+                received += receive;
+            }
+
+            var success = buffer[0] == (byte)'R';
             if (success)
             {
                 PatliteStatusHelper.FromByte(status, buffer[1]);

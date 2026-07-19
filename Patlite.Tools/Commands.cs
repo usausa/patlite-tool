@@ -42,6 +42,12 @@ public abstract class CommandBase
         }
         return client;
     }
+
+    protected static IPAddress ResolveHost(string host) =>
+        IPAddress.TryParse(host, out var address)
+            ? address
+            : Array.Find(Dns.GetHostAddresses(host), static x => x.AddressFamily == AddressFamily.InterNetwork)
+                ?? throw new InvalidOperationException($"Host has no IPv4 address. host=[{host}]");
 }
 
 // Clear
@@ -51,7 +57,7 @@ public sealed class ClearCommand : CommandBase, ICommandHandler
     public async ValueTask ExecuteAsync(CommandContext context)
     {
         using var client = CreateClient();
-        await client.ConnectAsync(IPAddress.Parse(Host), Port);
+        await client.ConnectAsync(ResolveHost(Host), Port);
 
         var result = await client.WriteAsync(new PatliteStatus());
         Console.WriteLine(result ? "OK" : "NG");
@@ -68,7 +74,7 @@ public sealed class WriteCommand : CommandBase, ICommandHandler
     [Option<bool>("--blink", "-b", Description = "Blink")]
     public bool Blink { get; set; }
 
-    [Option<int>("--buzzer", "-b", Description = "Buzzer")]
+    [Option<int>("--buzzer", "-z", Description = "Buzzer")]
     public int Buzzer { get; set; }
 
     [Option<int>("--wait", "-w", Description = "Wait")]
@@ -92,7 +98,7 @@ public sealed class WriteCommand : CommandBase, ICommandHandler
         status.Buzzer = Buzzer;
 
         using var client = CreateClient();
-        await client.ConnectAsync(IPAddress.Parse(Host), Port);
+        await client.ConnectAsync(ResolveHost(Host), Port);
 
         var result = await client.WriteAsync(status);
         Console.WriteLine(result ? "OK" : "NG");
@@ -112,7 +118,7 @@ public sealed class ReadCommand : CommandBase, ICommandHandler
     public async ValueTask ExecuteAsync(CommandContext context)
     {
         using var client = CreateClient();
-        await client.ConnectAsync(IPAddress.Parse(Host), Port);
+        await client.ConnectAsync(ResolveHost(Host), Port);
 
         var status = new PatliteStatus();
         var result = await client.ReadAsync(status);
