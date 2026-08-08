@@ -9,8 +9,8 @@ public sealed class UdpPatliteClient : IPatliteClient
 
     public ValueTask ConnectAsync(IPAddress address, int port)
     {
-        socket?.Close();
         socket?.Dispose();
+        socket = null;
 
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.Connect(new IPEndPoint(address, port));
@@ -19,7 +19,8 @@ public sealed class UdpPatliteClient : IPatliteClient
 
     public void Dispose()
     {
-        socket?.Close();
+        socket?.Dispose();
+        socket = null;
     }
 
     public async ValueTask<bool> WriteAsync(PatliteStatus status)
@@ -37,6 +38,14 @@ public sealed class UdpPatliteClient : IPatliteClient
             using var cts = new CancellationTokenSource(Timeout);
             var receive = await socket.ReceiveAsync(buffer, SocketFlags.None, cts.Token);
             return receive >= 3 && buffer.AsSpan(0, 3).SequenceEqual("ACK"u8);
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+        catch (SocketException)
+        {
+            return false;
         }
         finally
         {
@@ -65,6 +74,14 @@ public sealed class UdpPatliteClient : IPatliteClient
             }
 
             return success;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+        catch (SocketException)
+        {
+            return false;
         }
         finally
         {

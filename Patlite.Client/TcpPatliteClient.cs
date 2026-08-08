@@ -23,6 +23,12 @@ public sealed class TcpPatliteClient : IPatliteClient
         socket = null;
     }
 
+    private void Invalidate()
+    {
+        socket?.Dispose();
+        socket = null;
+    }
+
     public async ValueTask<bool> WriteAsync(PatliteStatus status)
     {
         if (socket is null)
@@ -42,6 +48,7 @@ public sealed class TcpPatliteClient : IPatliteClient
                 var receive = await socket.ReceiveAsync(buffer.AsMemory(received, buffer.Length - received), SocketFlags.None, cts.Token);
                 if (receive == 0)
                 {
+                    Invalidate();
                     return false;
                 }
 
@@ -49,6 +56,16 @@ public sealed class TcpPatliteClient : IPatliteClient
             }
 
             return buffer.AsSpan(0, 3).SequenceEqual("ACK"u8);
+        }
+        catch (OperationCanceledException)
+        {
+            Invalidate();
+            return false;
+        }
+        catch (SocketException)
+        {
+            Invalidate();
+            return false;
         }
         finally
         {
@@ -75,6 +92,7 @@ public sealed class TcpPatliteClient : IPatliteClient
                 var receive = await socket.ReceiveAsync(buffer.AsMemory(received, buffer.Length - received), SocketFlags.None, cts.Token);
                 if (receive == 0)
                 {
+                    Invalidate();
                     return false;
                 }
 
@@ -88,6 +106,16 @@ public sealed class TcpPatliteClient : IPatliteClient
             }
 
             return success;
+        }
+        catch (OperationCanceledException)
+        {
+            Invalidate();
+            return false;
+        }
+        catch (SocketException)
+        {
+            Invalidate();
+            return false;
         }
         finally
         {
