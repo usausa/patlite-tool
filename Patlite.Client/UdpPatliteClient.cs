@@ -37,7 +37,7 @@ public sealed class UdpPatliteClient : IPatliteClient
 
             using var cts = new CancellationTokenSource(Timeout);
             var receive = await socket.ReceiveAsync(buffer, SocketFlags.None, cts.Token);
-            return receive >= 3 && buffer.AsSpan(0, 3).SequenceEqual("ACK"u8);
+            return (receive >= 3) && buffer.AsSpan(0, 3).SequenceEqual("ACK"u8);
         }
         catch (OperationCanceledException)
         {
@@ -67,7 +67,7 @@ public sealed class UdpPatliteClient : IPatliteClient
 
             using var cts = new CancellationTokenSource(Timeout);
             var receive = await socket.ReceiveAsync(buffer, SocketFlags.None, cts.Token);
-            var success = receive >= 2 && buffer[0] == (byte)'R';
+            var success = (receive >= 2) && (buffer[0] == (byte)'R');
             if (success)
             {
                 PatliteStatusHelper.FromByte(status, buffer[1]);
