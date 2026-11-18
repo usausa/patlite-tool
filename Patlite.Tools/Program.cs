@@ -1,3 +1,5 @@
+using System.CommandLine.Help;
+
 using Patlite.Tools;
 
 using Smart.CommandLine.Hosting;
@@ -8,6 +10,12 @@ builder.ConfigureCommands(commands =>
     commands.ConfigureRootCommand(root =>
     {
         root.WithDescription("PATLITE client");
+        root.Configure(static command =>
+        {
+            var help = command.Options.OfType<HelpOption>().First();
+            help.Aliases.Remove("-h");
+            help.Aliases.Remove("/h");
+        });
     });
 
     commands.AddCommands();
